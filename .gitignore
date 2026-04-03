@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+web/dist/
+api/dist/
+
+# Environment files
+env/.env
+env/.env.local
+env/.env.production
+
+# Sample (reference code, managed separately)
+sample/
+
+# IDE / Editor
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+*.bak
