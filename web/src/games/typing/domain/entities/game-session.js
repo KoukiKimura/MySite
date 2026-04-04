@@ -89,14 +89,17 @@ export function getCurrentQuestion(session) {
 
 /**
  * セッション終了条件の判定
- * - time-limit: 外部タイマーで判定するため常に false
+ * - time-limit: 制限時間を超えたら true
  * - fixed-count: currentIndex が questionCount 以上なら true
  */
 export function shouldFinish(session) {
   if (session.config.gameMode === 'fixed-count') {
     return session.currentIndex >= session.config.questionCount;
   }
-  return false;
+  // time-limit: startTime が設定されていない場合は終了しない
+  if (!session.startTime) return false;
+  const elapsed = Date.now() - session.startTime - session.pausedTime;
+  return elapsed >= session.config.timeLimit * 1000;
 }
 
 /** 実プレイ時間（ミリ秒）を返す */
