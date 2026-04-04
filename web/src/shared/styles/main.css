@@ -396,6 +396,223 @@ button {
   background-color: var(--color-primary-dark);
 }
 
+/* ==== About ==== */
+.about__title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-lg);
+}
+
+.about__subtitle {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-xl);
+  margin-top: var(--space-2xl);
+  margin-bottom: var(--space-md);
+}
+
+.about__text {
+  line-height: var(--line-height-loose);
+  margin-bottom: var(--space-md);
+}
+
+/* ==== Contact ==== */
+.contact__title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-md);
+}
+
+.contact__text {
+  margin-bottom: var(--space-lg);
+}
+
+.contact__iframe {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.contact__fallback {
+  padding: var(--space-2xl);
+  text-align: center;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+/* ==== Not Found ==== */
+.not-found {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-md);
+}
+
+.not-found__title {
+  font-family: var(--font-heading);
+  font-size: 5rem;
+  color: var(--color-primary);
+  margin-bottom: var(--space-md);
+}
+
+.not-found__text {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xl);
+}
+
+/* ==== Game Description ==== */
+.game-desc__title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-lg);
+}
+
+.game-desc__text {
+  line-height: var(--line-height-loose);
+  margin-bottom: var(--space-xl);
+}
+
+.game-desc__rules {
+  background-color: var(--color-bg-secondary);
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-xl);
+}
+
+.game-desc__rules-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-md);
+}
+
+.game-desc__rules-list {
+  padding-left: var(--space-xl);
+  line-height: var(--line-height-loose);
+}
+
+.game-desc__mobile-warning {
+  background-color: #FFF3E0;
+  border: 1px solid var(--color-warning);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-xl);
+}
+
+.game-desc__actions {
+  margin-top: var(--space-xl);
+}
+
+.game-desc__play-btn {
+  font-size: var(--font-size-lg);
+  padding: var(--space-md) var(--space-2xl);
+}
+
+/* ==== Login Form ==== */
+.login-form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.login-form__title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.login-form__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.login-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.login-form__label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.login-form__input {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  transition: border-color var(--transition-fast);
+}
+
+.login-form__input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.login-form__submit {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+}
+
+.login-form__note {
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background-color: #FFF3E0;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+/* ==== Ranking ==== */
+.ranking__title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-xl);
+}
+
+.ranking__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-lg);
+}
+
+.ranking__th {
+  background-color: var(--color-bg-secondary);
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.ranking__row:nth-child(even) {
+  background-color: var(--color-bg-secondary);
+}
+
+.ranking__cell {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ranking__cell--rank {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.ranking__cell--score {
+  font-weight: 700;
+}
+
+.ranking__note {
+  padding: var(--space-md);
+  background-color: #FFF3E0;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
 /* ==== Responsive ==== */
 @media (max-width: 768px) {
   .header__nav {
@@ -412,5 +629,14 @@ button {
 
   .hero__title {
     font-size: var(--font-size-2xl);
+  }
+
+  .ranking__table {
+    font-size: var(--font-size-sm);
+  }
+
+  .ranking__th,
+  .ranking__cell {
+    padding: var(--space-xs) var(--space-sm);
   }
 }
