@@ -1,8 +1,21 @@
+import { Router } from './shared/router/router.js';
+import { Header } from './shared/components/header.js';
+import { Footer } from './shared/components/footer.js';
+import { PageContainer } from './shared/components/page-container.js';
 import './shared/styles/main.css';
 
 function initApp() {
   const app = document.getElementById('app');
-  app.innerHTML = '<div class="page-container"><h1>ペンギンげーむず！</h1><p>環境構築完了</p></div>';
+
+  const header = Header.create();
+  const pageContainer = PageContainer.create();
+  const footer = Footer.create();
+
+  app.appendChild(header);
+  app.appendChild(pageContainer);
+  app.appendChild(footer);
+
+  Router.init(pageContainer, header, footer);
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
