@@ -74,6 +74,8 @@ async function deploy() {
 
   try {
     console.log('接続中...');
+    // NOTE: ConoHa Wing 共有ホスティングはポート22(SFTP)が閉じられているため
+    //       plain FTP(ポート21)を使用。本番デプロイはローカル環境からのみ実行すること。
     await client.access({
       host: FTP_HOST,
       user: FTP_USER,

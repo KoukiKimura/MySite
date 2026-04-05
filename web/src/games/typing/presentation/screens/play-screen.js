@@ -2,7 +2,7 @@ import { LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../canvas/typing-canvas.js';
 import { shouldFinish, getElapsedTime, getCurrentQuestion } from '../../domain/entities/game-session.js';
 import { buildMatchData } from '../../domain/services/romaji-converter.js';
 import { createRomajiInput } from '../../domain/values/romaji-input.js';
-import { calculateAccuracy } from '../../domain/services/score-calculator.js';
+import { calculateAccuracy, getComboMultiplier } from '../../domain/services/score-calculator.js';
 
 /**
  * プレイ画面 (G-3)
@@ -42,8 +42,11 @@ export function createPlayScreen(ctx, session, deps) {
       chunkIndex = result.chunkIndex;
       // 問題を即時更新（render() の末尾より先に更新して null 参照を防ぐ）
       currentQuestion = getCurrentQuestion(session);
-      // スコア更新
-      currentScore = Math.max(0, session.correctCount * 10 - session.missCount * 5);
+      // スコア更新（comboHistory ベースの倍率計算 — 最終スコアと同じロジック）
+      currentScore = Math.max(0,
+        session.comboHistory.reduce((sum, c) => sum + Math.round(10 * getComboMultiplier(c)), 0)
+        - session.missCount * 5
+      );
     } else if (result.result === 'finish') {
       onFinish(result.finalResult);
       destroy();

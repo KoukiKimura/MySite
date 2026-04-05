@@ -8,8 +8,7 @@ export function createJsonQuestionRepository() {
         return cache.get(fileName);
       }
 
-      const url = new URL(`../data/${fileName}`, import.meta.url);
-      const response = await fetch(url);
+      const response = await fetch(`/data/${fileName}`);
       if (!response.ok) {
         throw new Error(`出題データの取得に失敗: ${fileName} (${response.status})`);
       }
