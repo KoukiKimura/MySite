@@ -1,0 +1,11 @@
+[
+  {
+    "id": "typing",
+    "title": "タイピングペンギン",
+    "description": "ローマ字タイピングで腕試し！日本語も英語も対応。",
+    "thumbnail": "/assets/img/games/typing-thumb.png",
+    "path": "/games/typing",
+    "status": "available",
+    "tags": ["タイピング", "1人用", "PC推奨"]
+  }
+]
