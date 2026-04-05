@@ -40,9 +40,9 @@ export function createPlayScreen(ctx, session, deps) {
       currentInput = result.input;
       currentMatchData = result.matchData;
       chunkIndex = result.chunkIndex;
-      // スコア更新（正解打鍵数をルールベースで計算）
-      const totalKS = session.correctCount + session.missCount;
-      const acc = calculateAccuracy(session.correctCount, totalKS || 1);
+      // 問題を即時更新（render() の末尾より先に更新して null 参照を防ぐ）
+      currentQuestion = getCurrentQuestion(session);
+      // スコア更新
       currentScore = Math.max(0, session.correctCount * 10 - session.missCount * 5);
     } else if (result.result === 'finish') {
       onFinish(result.finalResult);
@@ -100,7 +100,12 @@ export function createPlayScreen(ctx, session, deps) {
       session.config.questionCount
     );
 
-    // 出題テキスト
+    // 出題テキスト（null ガード: 全問終了直後フレームで null になる場合がある）
+    if (!currentQuestion) {
+      ctx.restore();
+      rafId = requestAnimationFrame(loop);
+      return;
+    }
     textRenderer.drawQuestion(currentQuestion.display, LOGICAL_WIDTH / 2, 220);
 
     // ローマ字ガイド
@@ -132,11 +137,6 @@ export function createPlayScreen(ctx, session, deps) {
 
     ctx.restore();
 
-    // 問題を更新
-    currentQuestion = getCurrentQuestion(session);
-    if (currentQuestion) {
-      // 更新は handleInput 内で行う
-    }
   }
 
   function loop(ts) {

@@ -100,6 +100,21 @@ export function processInput(session, currentInput, matchData, chunkIndex, key) 
 
   // 次の問題を準備
   const nextQuestion = getCurrentQuestion(session);
+  if (!nextQuestion) {
+    // 全問題を出題し終えた (time-limit モードで時間が余っている場合)
+    finishSession(session);
+    const elapsed = getElapsedTime(session);
+    const finalResult = calculateFinalResult(session, elapsed);
+    return {
+      session,
+      input: null,
+      matchData: null,
+      chunkIndex: 0,
+      result: 'finish',
+      isNewQuestion: false,
+      finalResult,
+    };
+  }
   const nextMatchData = buildMatchData(nextQuestion.reading);
   const firstChunk = nextMatchData[0];
   const nextInput = createRomajiInput(firstChunk.kana, firstChunk.patterns);
