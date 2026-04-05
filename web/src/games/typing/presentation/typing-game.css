@@ -1,0 +1,287 @@
+/* ================================================
+   タイピングゲーム プレゼンテーション層スタイル
+   ================================================ */
+
+/* ---- コンテナ共通 ---- */
+.typing-game-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - var(--header-height));
+  background-color: var(--color-bg-dark);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- キャンバス ---- */
+.typing-game-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: crisp-edges;
+}
+
+/* ---- DOM オーバーレイ（メニュー・リザルト共通） ---- */
+.typing-game-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* ================================================
+   G-1 メニュー画面
+   ================================================ */
+.typing-menu-screen {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #0d1b2a 0%, #1a3a5c 60%, #0d2a3a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.typing-menu-inner {
+  width: 100%;
+  max-width: 560px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: var(--space-2xl) var(--space-xl);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.typing-menu-title {
+  color: var(--color-secondary);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+  text-shadow: 0 2px 8px rgba(255, 213, 79, 0.3);
+}
+
+.typing-menu-section {
+  margin-bottom: var(--space-xl);
+}
+
+.typing-menu-section:last-of-type {
+  margin-bottom: var(--space-2xl);
+}
+
+.typing-menu-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-sm);
+}
+
+.typing-menu-buttons {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* 選択ボタン */
+.typing-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.typing-btn:hover {
+  background: rgba(33, 150, 243, 0.2);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.typing-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(33, 150, 243, 0.45);
+}
+
+/* スタートボタン */
+.typing-start-btn {
+  display: block;
+  width: 100%;
+  padding: var(--space-md) var(--space-xl);
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.5);
+  letter-spacing: 0.04em;
+}
+
+.typing-start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(33, 150, 243, 0.65);
+}
+
+.typing-start-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.4);
+}
+
+/* ================================================
+   G-5 リザルト画面
+   ================================================ */
+.typing-result-screen {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #0d1b2a 0%, #1a3a5c 60%, #0d2a3a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  overflow-y: auto;
+}
+
+.typing-result-inner {
+  width: 100%;
+  max-width: 520px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: var(--space-2xl) var(--space-xl);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.typing-result-title {
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-md);
+}
+
+/* ランク表示 */
+.typing-result-rank {
+  font-family: var(--font-heading);
+  font-size: 5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: var(--space-sm);
+  text-shadow: 0 0 24px currentColor;
+}
+
+.typing-result-rank--S { color: #FFD700; }
+.typing-result-rank--A { color: #C0C0C0; }
+.typing-result-rank--B { color: #CD7F32; }
+.typing-result-rank--C { color: var(--color-primary-light); }
+.typing-result-rank--D { color: rgba(255,255,255,0.5); }
+
+/* スコア */
+.typing-result-score {
+  color: var(--color-secondary);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-xl);
+}
+
+.typing-result-score-label {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.5);
+  margin-right: var(--space-sm);
+}
+
+/* 統計テーブル */
+.typing-result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-xl);
+  font-size: var(--font-size-sm);
+}
+
+.typing-result-table tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.typing-result-table tr:last-child {
+  border-bottom: none;
+}
+
+.typing-result-table th {
+  padding: var(--space-sm) var(--space-md);
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+  text-align: left;
+  width: 50%;
+}
+
+.typing-result-table td {
+  padding: var(--space-sm) var(--space-md);
+  color: #fff;
+  font-family: var(--font-mono);
+  text-align: right;
+}
+
+/* アクションボタン */
+.typing-result-buttons {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+}
+
+.typing-result-btn {
+  flex: 1;
+  max-width: 180px;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 8px;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  border: none;
+}
+
+.typing-result-btn:hover {
+  transform: translateY(-1px);
+}
+
+.typing-result-btn--retry {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(33, 150, 243, 0.45);
+}
+
+.typing-result-btn--menu {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+}
+
+.typing-result-btn--menu:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
