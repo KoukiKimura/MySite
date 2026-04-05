@@ -1,20 +1,20 @@
-import { createJsonQuestionRepository } from '../infrastructure/repositories/json-question-repository.js';
-import { createQuestionProvider } from '../application/services/question-provider.js';
-import { startGame } from '../application/use-cases/start-game.js';
-import { processInput } from '../application/use-cases/process-input.js';
-import { finishGame } from '../application/use-cases/finish-game.js';
-import { startSession, pauseSession, resumeSession } from '../domain/entities/game-session.js';
+import { createJsonQuestionRepository } from './infrastructure/repositories/json-question-repository.js';
+import { createQuestionProvider } from './application/services/question-provider.js';
+import { startGame } from './application/use-cases/start-game.js';
+import { processInput } from './application/use-cases/process-input.js';
+import { finishGame } from './application/use-cases/finish-game.js';
+import { startSession, pauseSession, resumeSession } from './domain/entities/game-session.js';
 
-import { createTypingCanvas } from './canvas/typing-canvas.js';
-import { createTextRenderer } from './canvas/text-renderer.js';
-import { createEffectRenderer } from './canvas/effect-renderer.js';
-import { createKeyboardHandler } from './keyboard-handler.js';
+import { createTypingCanvas } from './presentation/canvas/typing-canvas.js';
+import { createTextRenderer } from './presentation/canvas/text-renderer.js';
+import { createEffectRenderer } from './presentation/canvas/effect-renderer.js';
+import { createKeyboardHandler } from './presentation/keyboard-handler.js';
 
-import { createMenuScreen } from './screens/menu-screen.js';
-import { createCountdownScreen } from './screens/countdown-screen.js';
-import { createPlayScreen } from './screens/play-screen.js';
-import { createPauseScreen } from './screens/pause-screen.js';
-import { createResultScreen } from './screens/result-screen.js';
+import { createMenuScreen } from './presentation/screens/menu-screen.js';
+import { createCountdownScreen } from './presentation/screens/countdown-screen.js';
+import { createPlayScreen } from './presentation/screens/play-screen.js';
+import { createPauseScreen } from './presentation/screens/pause-screen.js';
+import { createResultScreen } from './presentation/screens/result-screen.js';
 
 export function createTypingGame(container) {
   // canvas 要素を生成してコンテナに追加
