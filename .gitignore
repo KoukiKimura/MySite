@@ -9,6 +9,7 @@ api/dist/
 env/.env
 env/.env.local
 env/.env.production
+env/.env.deploy
 
 # Sample (reference code, managed separately)
 sample/
@@ -34,3 +35,6 @@ npm-debug.log*
 # Temporary files
 *.tmp
 *.bak
+
+# Work directory (contains sensitive deployment info)
+work/

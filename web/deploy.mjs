@@ -1,49 +1,74 @@
-/**
+﻿/**
  * deploy.mjs - ペンギンげーむず！ ConoHa Wing デプロイスクリプト
  *
  * 使い方:
  *   npm run deploy
- *   または: DEPLOY_PASSWORD=xxx node deploy.mjs
  *
- * パスワード入力: 環境変数 DEPLOY_PASSWORD が未設定の場合は対話入力を求めます。
+ * 接続情報: env/.env.deploy に記載してください。
+ * テンプレート: env/.env.deploy.example を参照
  */
 import * as ftp from 'basic-ftp';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createInterface } from 'readline';
+import { readFileSync } from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// ---- 接続設定 ----
-const FTP_HOST = 'REDACTED_HOST';
-const FTP_USER = 'REDACTED_USER';
-const FTP_PORT = 21;
-const REMOTE_DIR = 'REDACTED_DIR';
-const LOCAL_DIST = path.join(__dirname, 'dist');
-
-async function readPassword() {
-  if (process.env.DEPLOY_PASSWORD) {
-    return process.env.DEPLOY_PASSWORD;
+// ---- env/.env.deploy を読み込んで process.env にマージ ----
+function loadEnvFile(filePath) {
+  try {
+    const content = readFileSync(filePath, 'utf-8');
+    for (const line of content.split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eq = trimmed.indexOf('=');
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+      if (key && !(key in process.env)) process.env[key] = val;
+    }
+  } catch {
+    // ファイルが存在しない場合は無視
   }
-  const rl = createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise((resolve) => {
-    rl.question(`FTP password for ${FTP_USER}@${FTP_HOST}: `, (answer) => {
-      process.stdout.write('\n');
-      rl.close();
-      resolve(answer);
-    });
-    rl.stdoutMuted = true;
-    rl._writeToOutput = (str) => { if (!rl.stdoutMuted) process.stdout.write(str); };
-  });
+}
+
+loadEnvFile(path.join(__dirname, '../env/.env.deploy'));
+
+// ---- 接続設定（すべて環境変数から取得）----
+const FTP_HOST     = process.env.DEPLOY_FTP_HOST;
+const FTP_USER     = process.env.DEPLOY_FTP_USER;
+const FTP_PASSWORD = process.env.DEPLOY_FTP_PASSWORD;
+const FTP_PORT     = parseInt(process.env.DEPLOY_FTP_PORT ?? '21', 10);
+const REMOTE_DIR   = process.env.DEPLOY_REMOTE_DIR;
+const SITE_URL     = process.env.DEPLOY_SITE_URL;
+const LOCAL_DIST   = path.join(__dirname, 'dist');
+
+function validateConfig() {
+  const required = {
+    DEPLOY_FTP_HOST:     FTP_HOST,
+    DEPLOY_FTP_USER:     FTP_USER,
+    DEPLOY_FTP_PASSWORD: FTP_PASSWORD,
+    DEPLOY_REMOTE_DIR:   REMOTE_DIR,
+  };
+  const missing = Object.entries(required)
+    .filter(([, v]) => !v)
+    .map(([k]) => k);
+  if (missing.length) {
+    console.error('✗ 以下の環境変数が未設定です:');
+    for (const k of missing) console.error(`  ${k}`);
+    console.error('→ env/.env.deploy に記載してください。テンプレート: env/.env.deploy.example');
+    process.exit(1);
+  }
 }
 
 async function deploy() {
+  validateConfig();
+
   console.log('=== ペンギンげーむず！ デプロイ ===');
   console.log(`ローカル: ${LOCAL_DIST}`);
   console.log(`リモート: ${FTP_USER}@${FTP_HOST}:${REMOTE_DIR}`);
   console.log('');
 
-  const password = await readPassword();
   const client = new ftp.Client(10000);
   client.ftp.verbose = false;
 
@@ -52,7 +77,7 @@ async function deploy() {
     await client.access({
       host: FTP_HOST,
       user: FTP_USER,
-      password,
+      password: FTP_PASSWORD,
       port: FTP_PORT,
       secure: false,
     });
@@ -64,13 +89,11 @@ async function deploy() {
 
     console.log('');
     console.log('=== デプロイ完了 ===');
-    console.log('サイト: https://pengin24.com');
+    console.log(`サイト: ${SITE_URL ?? `https://${FTP_HOST}`}`);
   } catch (err) {
     console.error('✗ デプロイ失敗:', err.message);
-    // 接続情報のヒントを表示
-    if (err.message.includes('530') || err.message.includes('Login')) {
+    if (err.message.includes('530') || err.message.toLowerCase().includes('login')) {
       console.error('→ FTP ユーザー名またはパスワードが正しくない可能性があります。');
-      console.error('  ConoHa Wing コントロールパネル → ファイルマネージャー → FTP で確認してください。');
     }
     process.exitCode = 1;
   } finally {
@@ -79,4 +102,3 @@ async function deploy() {
 }
 
 deploy();
-
