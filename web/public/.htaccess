@@ -52,10 +52,14 @@ AddDefaultCharset UTF-8
   Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
 </IfModule>
 
-# ---- HTTPS リダイレクト ----
+# ---- HTTPS リダイレクト & www → non-www ----
+# ConoHa Wing はロードバランサー経由のため %{HTTPS} ではなく
+# X-Forwarded-Proto ヘッダーで判定する
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteCond %{HTTPS} off
+
+  # HTTP → HTTPS（プロキシ越しの判定）
+  RewriteCond %{HTTP:X-Forwarded-Proto} =http [NC]
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
   # www → non-www
