@@ -8,7 +8,7 @@ export default {
     page.className = 'page-game-desc';
     page.innerHTML = `
       <section class="game-desc">
-        <h1 class="game-desc__title">🐧 タイピングペンギン</h1>
+        <h1 class="game-desc__title"><img src="/logo.png" alt="" width="36" height="36" style="vertical-align:middle;margin-right:8px;">タイピングペンギン</h1>
         <p class="game-desc__text">
           日本語や英語の単語をローマ字でタイピング！
           正確さとスピードでスコアを競おう。
@@ -26,7 +26,7 @@ export default {
           <p>⚠️ このゲームは物理キーボードでのプレイを推奨しています。PCからアクセスしてください。</p>
         </div>
         <div class="game-desc__actions">
-          <a href="#/games/typing/play" class="game-desc__play-btn btn btn--primary">🚀 プレイ開始</a>
+          <a href="#/games/typing/play" class="game-desc__play-btn btn btn--primary">プレイ開始</a>
         </div>
       </section>
     `;
