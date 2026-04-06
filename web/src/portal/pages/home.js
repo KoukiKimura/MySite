@@ -9,7 +9,7 @@ export default {
       <section class="hero">
         <div class="hero__inner">
           <h1 class="hero__title">
-            <span class="hero__icon">🐧</span>
+            <img src="/logo.png" alt="" class="hero__icon" aria-hidden="true" width="64" height="64">
             ペンギンげーむず！
           </h1>
           <p class="hero__subtitle">ブラウザで遊べるミニゲーム集</p>
