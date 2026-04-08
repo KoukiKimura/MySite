@@ -1,4 +1,5 @@
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from './breakout-canvas.js';
+import { getItemVisual } from '../item-drop.js';
 
 function roundedRect(ctx, x, y, width, height, radius) {
   const r = Math.min(radius, width / 2, height / 2);
@@ -59,7 +60,7 @@ export function createBreakoutRenderer(ctx) {
     ctx.restore();
   }
 
-  function drawHud(session, stage) {
+  function drawHud(session, stage, balls) {
     drawPanel(ctx, 28, 18, 904, 58);
 
     ctx.font = '700 18px "M PLUS Rounded 1c", sans-serif';
@@ -76,6 +77,7 @@ export function createBreakoutRenderer(ctx) {
     ctx.fillText(`COMBO x${session.combo}`, 535, 47);
 
     ctx.fillStyle = 'rgba(255,255,255,0.78)';
+    ctx.fillText(`BALL x${balls.length}`, 650, 47);
     ctx.fillText('LIVES', 750, 47);
 
     for (let index = 0; index < session.maxLives; index += 1) {
@@ -120,18 +122,44 @@ export function createBreakoutRenderer(ctx) {
     ctx.restore();
   }
 
-  function drawBall(ball, stage) {
-    ctx.save();
-    const gradient = ctx.createRadialGradient(ball.x - 3, ball.y - 3, 2, ball.x, ball.y, ball.radius + 6);
-    gradient.addColorStop(0, '#ffffff');
-    gradient.addColorStop(1, stage.theme.accent);
-    ctx.fillStyle = gradient;
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = `${stage.theme.accent}aa`;
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+  function drawBalls(balls, stage) {
+    balls.forEach((ball) => {
+      ctx.save();
+      const gradient = ctx.createRadialGradient(ball.x - 3, ball.y - 3, 2, ball.x, ball.y, ball.radius + 6);
+      gradient.addColorStop(0, '#ffffff');
+      gradient.addColorStop(1, stage.theme.accent);
+      ctx.fillStyle = gradient;
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = `${stage.theme.accent}aa`;
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  function drawItems(items) {
+    items.forEach((item) => {
+      const visual = getItemVisual(item.type);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
+      ctx.fillStyle = visual.fill;
+      ctx.strokeStyle = visual.stroke;
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = `${visual.fill}88`;
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#08111c';
+      ctx.font = '700 12px "Source Code Pro", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(visual.label, item.x, item.y + 1);
+      ctx.restore();
+    });
   }
 
   function drawHint() {
@@ -139,7 +167,7 @@ export function createBreakoutRenderer(ctx) {
     ctx.fillStyle = 'rgba(255,255,255,0.55)';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Pause ボタンで一時停止', 38, LOGICAL_HEIGHT - 20);
+    ctx.fillText('右クリックで発射 / Pause ボタンで一時停止', 38, LOGICAL_HEIGHT - 20);
   }
 
   function drawBanner(banner, playfield) {
@@ -177,16 +205,18 @@ export function createBreakoutRenderer(ctx) {
       playfield,
       blocks,
       paddle,
-      ball,
+      balls,
+      items,
       banner,
     } = scene;
 
     clear();
     drawBackground(stage, playfield);
-    drawHud(session, stage);
+    drawHud(session, stage, balls);
     drawBlocks(blocks, stage);
     drawPaddle(paddle, stage);
-    drawBall(ball, stage);
+    drawBalls(balls, stage);
+    drawItems(items);
     drawHint();
     drawBanner(banner, playfield);
   }
@@ -196,4 +226,3 @@ export function createBreakoutRenderer(ctx) {
     renderFrame,
   };
 }
-

@@ -6,9 +6,9 @@ export function createResultScreen(result, { onRetry, onMenu }) {
   el.innerHTML = `
     <div class="breakout-dialog breakout-dialog--result">
       <p class="breakout-dialog__eyebrow">${isClear ? 'Game Clear' : 'Game Over'}</p>
-      <h2 class="breakout-dialog__title">${isClear ? '1-5 までクリア' : 'ボール切れで終了'}</h2>
+      <h2 class="breakout-dialog__title">${isClear ? '全ステージクリア' : 'ボール切れで終了'}</h2>
       <p class="breakout-dialog__text">
-        ${isClear ? '全5ステージを突破しました。' : `到達ステージは ${escapeHtml(result.reachedStageId ?? '1-1')} です。`}
+        ${isClear ? `全${escapeHtml(String(result.totalStages))}ステージを突破しました。` : `到達ステージは ${escapeHtml(result.reachedStageId ?? '1-1')} です。`}
       </p>
       <table class="breakout-result-table">
         <tr><th>総スコア</th><td>${escapeHtml(String(result.score))}</td></tr>
@@ -17,7 +17,7 @@ export function createResultScreen(result, { onRetry, onMenu }) {
         <tr><th>残機</th><td>${escapeHtml(String(result.remainingLives))}</td></tr>
       </table>
       <div class="breakout-dialog__actions">
-        <button type="button" class="breakout-button breakout-button--primary" data-action="retry">1-1から再挑戦</button>
+        <button type="button" class="breakout-button breakout-button--primary" data-action="retry">最初から再挑戦</button>
         <button type="button" class="breakout-button breakout-button--ghost" data-action="menu">説明ページへ戻る</button>
       </div>
     </div>
@@ -50,4 +50,3 @@ function escapeHtml(value) {
   div.textContent = value;
   return div.innerHTML;
 }
-

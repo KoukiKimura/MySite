@@ -8,7 +8,7 @@ export function createPauseScreen({ onResume, onRetry, onMenu }) {
       <p class="breakout-dialog__text">ゲームを再開するか、最初からやり直すかを選択できます。</p>
       <div class="breakout-dialog__actions">
         <button type="button" class="breakout-button breakout-button--primary" data-action="resume">再開</button>
-        <button type="button" class="breakout-button breakout-button--secondary" data-action="retry">1-1からやり直す</button>
+        <button type="button" class="breakout-button breakout-button--secondary" data-action="retry">最初からやり直す</button>
         <button type="button" class="breakout-button breakout-button--ghost" data-action="menu">説明ページへ戻る</button>
       </div>
     </div>
@@ -36,4 +36,3 @@ export function createPauseScreen({ onResume, onRetry, onMenu }) {
     },
   };
 }
-

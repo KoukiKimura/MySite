@@ -6,6 +6,13 @@ import {
   recordPaddleBounce,
 } from '../../domain/entities/game-session.js';
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from '../canvas/breakout-canvas.js';
+import {
+  ITEM_TYPES,
+  MAX_ACTIVE_BALLS,
+  adjustPaddleScale,
+  adjustPaddleSpeedScale,
+  maybeCreateItemDrop,
+} from '../item-drop.js';
 
 const PLAYFIELD = Object.freeze({
   left: 48,
@@ -20,10 +27,10 @@ const BLOCK_GAP = 8;
 const PADDLE_HEIGHT = 16;
 const PADDLE_Y = PLAYFIELD.bottom - 26;
 const BALL_RADIUS = 9;
-const SERVE_DELAY_MS = 900;
 const STAGE_CLEAR_DELAY_MS = 1400;
 const MIN_BALL_SPEED = 280;
 const MAX_BALL_SPEED = 560;
+const BASE_PADDLE_FOLLOW = 14;
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -52,8 +59,18 @@ function buildStageLayout(stage) {
   };
 }
 
-function createPaddle(stage, centerX = LOGICAL_WIDTH / 2) {
-  const width = stage.paddleWidth;
+function getPaddleWidth(stage, paddleScale) {
+  const minWidth = Math.max(72, Math.round(stage.paddleWidth * 0.75));
+  const maxWidth = Math.min(
+    PLAYFIELD.right - PLAYFIELD.left - 24,
+    Math.round(stage.paddleWidth * 1.6)
+  );
+
+  return clamp(Math.round(stage.paddleWidth * paddleScale), minWidth, maxWidth);
+}
+
+function createPaddle(stage, centerX = LOGICAL_WIDTH / 2, paddleScale = 1) {
+  const width = getPaddleWidth(stage, paddleScale);
   return {
     x: clamp(centerX - width / 2, PLAYFIELD.left, PLAYFIELD.right - width),
     y: PADDLE_Y,
@@ -71,6 +88,20 @@ function createServedBall(stage, paddle, serveCount) {
   return {
     x: paddle.x + paddle.width / 2,
     y: paddle.y - BALL_RADIUS - 2,
+    vx,
+    vy,
+    radius: BALL_RADIUS,
+  };
+}
+
+function createExtraBall(referenceBall, direction) {
+  const speed = clamp(Math.hypot(referenceBall.vx, referenceBall.vy), MIN_BALL_SPEED, MAX_BALL_SPEED);
+  const vx = clamp(Math.max(96, Math.abs(referenceBall.vx)), 96, speed * 0.74) * direction;
+  const vy = -Math.sqrt(Math.max(speed * speed - vx * vx, 1));
+
+  return {
+    x: referenceBall.x,
+    y: referenceBall.y,
     vx,
     vy,
     radius: BALL_RADIUS,
@@ -114,45 +145,123 @@ function resolveBlockBounce(ball, rect, prevX, prevY) {
 export function createPlayScreen({ session, renderer, pointerController, onPause, onFinish }) {
   let stage = getCurrentStage(session);
   let stageLayout = buildStageLayout(stage);
-  let paddle = createPaddle(stage);
+  let paddleScale = 1;
+  let paddleSpeedScale = 1;
+  let paddle = createPaddle(stage, LOGICAL_WIDTH / 2, paddleScale);
   let serveCount = 0;
-  let ball = createServedBall(stage, paddle, serveCount);
+  let balls = [createServedBall(stage, paddle, serveCount)];
+  let items = [];
+  let extraBallDirection = -1;
   let banner = {
     title: stage.label,
-    subtitle: 'バーを合わせてボール発射を待機',
+    subtitle: 'マウスで位置調整して右クリックで発射',
   };
 
   let phase = 'serve';
-  let phaseTimer = SERVE_DELAY_MS;
+  let phaseTimer = 0;
   let paused = false;
   let destroyed = false;
   let rafId = null;
   let lastTime = null;
 
+  pointerController.consumeLaunchRequest();
+
+  function refreshPaddle() {
+    const centerX = paddle.x + paddle.width / 2;
+    paddle = createPaddle(stage, centerX, paddleScale);
+  }
+
   function prepareStage(nextStage) {
     stage = nextStage;
     stageLayout = buildStageLayout(stage);
-    paddle = createPaddle(stage, paddle.x + paddle.width / 2);
+    paddle = createPaddle(stage, paddle.x + paddle.width / 2, paddleScale);
     serveCount += 1;
-    ball = createServedBall(stage, paddle, serveCount);
+    balls = [createServedBall(stage, paddle, serveCount)];
+    items = [];
+    pointerController.consumeLaunchRequest();
     banner = {
       title: stage.label,
-      subtitle: 'バーを合わせてボール発射を待機',
+      subtitle: 'マウスで位置調整して右クリックで発射',
     };
     phase = 'serve';
-    phaseTimer = SERVE_DELAY_MS;
+    phaseTimer = 0;
   }
 
   function prepareAfterMiss() {
     serveCount += 1;
-    paddle = createPaddle(stage, paddle.x + paddle.width / 2);
-    ball = createServedBall(stage, paddle, serveCount);
+    paddle = createPaddle(stage, paddle.x + paddle.width / 2, paddleScale);
+    balls = [createServedBall(stage, paddle, serveCount)];
+    items = [];
+    pointerController.consumeLaunchRequest();
     banner = {
       title: 'MISS',
-      subtitle: `残機 ${session.lives} で再開`,
+      subtitle: `残機 ${session.lives} / 右クリックで再発射`,
     };
     phase = 'serve';
-    phaseTimer = SERVE_DELAY_MS;
+    phaseTimer = 0;
+  }
+
+  function triggerStageClear(ball, scoreDelta) {
+    balls = [{ ...ball }];
+    items = [];
+    phase = 'stage-transition';
+    phaseTimer = STAGE_CLEAR_DELAY_MS;
+    banner = {
+      title: session.stageIndex === session.stages.length - 1 ? 'ALL CLEAR' : 'STAGE CLEAR',
+      subtitle: `+${scoreDelta} pts`,
+    };
+  }
+
+  function applyItemEffect(type) {
+    switch (type) {
+      case ITEM_TYPES.EXTRA_BALL: {
+        if (balls.length >= MAX_ACTIVE_BALLS || balls.length === 0) {
+          return;
+        }
+
+        const referenceBall = balls[balls.length - 1];
+        balls.push(createExtraBall(referenceBall, extraBallDirection));
+        extraBallDirection *= -1;
+        return;
+      }
+      case ITEM_TYPES.PADDLE_WIDER:
+        paddleScale = adjustPaddleScale(paddleScale, 1);
+        refreshPaddle();
+        return;
+      case ITEM_TYPES.PADDLE_FASTER:
+        paddleSpeedScale = adjustPaddleSpeedScale(paddleSpeedScale, 1);
+        return;
+      case ITEM_TYPES.PADDLE_NARROWER:
+        paddleScale = adjustPaddleScale(paddleScale, -1);
+        refreshPaddle();
+        return;
+      case ITEM_TYPES.PADDLE_SLOWER:
+        paddleSpeedScale = adjustPaddleSpeedScale(paddleSpeedScale, -1);
+        return;
+      default:
+        throw new Error(`Unsupported item type: ${type}`);
+    }
+  }
+
+  function updateItems(dtSec) {
+    const remainingItems = [];
+
+    for (const item of items) {
+      item.y += item.vy * dtSec;
+
+      if (circleIntersectsRect(item, paddle)) {
+        applyItemEffect(item.type);
+        continue;
+      }
+
+      if (item.y - item.radius > PLAYFIELD.bottom) {
+        continue;
+      }
+
+      remainingItems.push(item);
+    }
+
+    items = remainingItems;
   }
 
   function updatePaddle(dtSec) {
@@ -161,11 +270,11 @@ export function createPlayScreen({ session, renderer, pointerController, onPause
       PLAYFIELD.left,
       PLAYFIELD.right - paddle.width
     );
-    const follow = Math.min(1, dtSec * 14);
+    const follow = Math.min(1, dtSec * BASE_PADDLE_FOLLOW * paddleSpeedScale);
     paddle.x += (targetX - paddle.x) * follow;
   }
 
-  function handleWallCollision() {
+  function handleWallCollision(ball) {
     if (ball.x - ball.radius <= PLAYFIELD.left) {
       ball.x = PLAYFIELD.left + ball.radius;
       ball.vx = Math.abs(ball.vx);
@@ -180,7 +289,7 @@ export function createPlayScreen({ session, renderer, pointerController, onPause
     }
   }
 
-  function handlePaddleCollision(prevY) {
+  function handlePaddleCollision(ball, prevY) {
     if (ball.vy <= 0) return false;
     if (!circleIntersectsRect(ball, paddle)) return false;
     if (prevY + ball.radius > paddle.y + 4) return false;
@@ -201,7 +310,7 @@ export function createPlayScreen({ session, renderer, pointerController, onPause
     return true;
   }
 
-  function handleBlockCollision(prevX, prevY) {
+  function handleBlockCollision(ball, prevX, prevY) {
     for (const layoutBlock of stageLayout.blocks) {
       if (layoutBlock.block.destroyed) continue;
       if (!circleIntersectsRect(ball, layoutBlock)) continue;
@@ -209,13 +318,15 @@ export function createPlayScreen({ session, renderer, pointerController, onPause
       resolveBlockBounce(ball, layoutBlock, prevX, prevY);
       const result = recordBlockDestroyed(session, layoutBlock.block.id);
 
+      if (result.destroyed && !result.stageCleared) {
+        const item = maybeCreateItemDrop(layoutBlock);
+        if (item) {
+          items.push(item);
+        }
+      }
+
       if (result.stageCleared) {
-        phase = 'stage-transition';
-        phaseTimer = STAGE_CLEAR_DELAY_MS;
-        banner = {
-          title: session.stageIndex === session.stages.length - 1 ? 'ALL CLEAR' : 'STAGE CLEAR',
-          subtitle: `+${result.scoreDelta} pts`,
-        };
+        triggerStageClear(ball, result.scoreDelta);
       }
 
       return true;
@@ -224,7 +335,7 @@ export function createPlayScreen({ session, renderer, pointerController, onPause
     return false;
   }
 
-  function updatePlaying(dtSec) {
+  function updateBall(ball, dtSec) {
     const speed = Math.hypot(ball.vx, ball.vy);
     const subSteps = Math.max(1, Math.ceil((speed * dtSec) / 8));
     const stepDt = dtSec / subSteps;
@@ -236,29 +347,56 @@ export function createPlayScreen({ session, renderer, pointerController, onPause
       ball.x += ball.vx * stepDt;
       ball.y += ball.vy * stepDt;
 
-      handleWallCollision();
+      handleWallCollision(ball);
 
-      if (handlePaddleCollision(prevY)) {
+      if (handlePaddleCollision(ball, prevY)) {
         continue;
       }
 
-      if (handleBlockCollision(prevX, prevY)) {
-        if (phase !== 'playing') return;
+      if (handleBlockCollision(ball, prevX, prevY)) {
+        return true;
       }
 
       if (ball.y - ball.radius > PLAYFIELD.bottom) {
-        const result = loseBall(session);
-
-        if (result.gameOver) {
-          onFinish(result.result);
-          destroy();
-          return;
-        }
-
-        prepareAfterMiss();
-        return;
+        return false;
       }
     }
+
+    return true;
+  }
+
+  function updatePlaying(dtSec) {
+    updateItems(dtSec);
+
+    const currentBalls = [...balls];
+    const activeBalls = [];
+
+    for (const ball of currentBalls) {
+      const keepBall = updateBall(ball, dtSec);
+
+      if (destroyed) return;
+      if (phase !== 'playing') return;
+
+      if (keepBall) {
+        activeBalls.push(ball);
+      }
+    }
+
+    balls = activeBalls;
+
+    if (balls.length > 0) {
+      return;
+    }
+
+    const result = loseBall(session);
+
+    if (result.gameOver) {
+      onFinish(result.result);
+      destroy();
+      return;
+    }
+
+    prepareAfterMiss();
   }
 
   function update(dtMs) {
@@ -266,15 +404,20 @@ export function createPlayScreen({ session, renderer, pointerController, onPause
     updatePaddle(dtSec);
 
     if (phase === 'serve') {
-      ball.x = paddle.x + paddle.width / 2;
-      ball.y = paddle.y - ball.radius - 2;
-      phaseTimer -= dtMs;
-      if (phaseTimer <= 0) {
+      const servedBall = balls[0];
+      if (servedBall) {
+        servedBall.x = paddle.x + paddle.width / 2;
+        servedBall.y = paddle.y - servedBall.radius - 2;
+      }
+
+      if (pointerController.consumeLaunchRequest()) {
         phase = 'playing';
         banner = null;
       }
       return;
     }
+
+    pointerController.consumeLaunchRequest();
 
     if (phase === 'stage-transition') {
       phaseTimer -= dtMs;
@@ -302,7 +445,8 @@ export function createPlayScreen({ session, renderer, pointerController, onPause
       playfield: PLAYFIELD,
       blocks: stageLayout.blocks,
       paddle,
-      ball,
+      balls,
+      items,
       banner,
     });
   }

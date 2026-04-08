@@ -78,4 +78,30 @@ describe('createPointerController', () => {
     expect(controller.getTargetX()).toBeCloseTo(240);
     expect(controller.getPointerY()).toBeCloseTo(480);
   });
+
+  it('queues a launch request on right click and clears it after consume', () => {
+    const eventTarget = createFakeEventTarget();
+    const canvasElement = {
+      getBoundingClientRect() {
+        return {
+          left: 0,
+          top: 0,
+          width: 200,
+          height: 100,
+        };
+      },
+    };
+
+    const controller = createPointerController(canvasElement, eventTarget);
+
+    eventTarget.dispatch('pointerdown', {
+      button: 2,
+      clientX: 80,
+      clientY: 40,
+      preventDefault() {},
+    });
+
+    expect(controller.consumeLaunchRequest()).toBe(true);
+    expect(controller.consumeLaunchRequest()).toBe(false);
+  });
 });

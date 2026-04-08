@@ -6,13 +6,14 @@ export function createMenuScreen({ onStart }) {
       <p class="breakout-menu-card__eyebrow">Mouse Action Game</p>
       <h2 class="breakout-menu-card__title">ペンギンブロックブレイク</h2>
       <p class="breakout-menu-card__text">
-        バーをマウスで動かし、ボールを落とさずに 1-1 から 1-5 まで突破します。
-        バーに触れずにブロックを連続で壊すほどコンボ得点が伸びます。
+        バーをマウスで動かし、右クリックでボールを発射して 1-1 から 2-5 まで突破します。
+        バーに触れずにブロックを連続で壊すほどコンボ得点が伸び、落下アイテムで戦況も変化します。
       </p>
       <ul class="breakout-menu-card__rules">
+        <li>サーブ開始と再開は右クリックで発射</li>
         <li>残機は 3。ボールを落とすと 1 減少</li>
-        <li>残機がある間は同じステージを継続</li>
-        <li>残機 0 でゲームオーバー。再挑戦は 1-1 から</li>
+        <li>追加ボールは全ボールを落とすまで有効</li>
+        <li>後半 2-x は大型レイアウトの高難度ステージ</li>
       </ul>
       <div class="breakout-menu-card__actions">
         <button type="button" class="breakout-button breakout-button--primary">ゲーム開始</button>
@@ -34,4 +35,3 @@ export function createMenuScreen({ onStart }) {
     },
   };
 }
-
