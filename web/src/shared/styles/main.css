@@ -118,7 +118,10 @@ button {
 }
 
 .header__logo-icon {
-  font-size: var(--font-size-2xl);
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  display: inline-block;
 }
 
 .header__nav {
@@ -356,7 +359,8 @@ button {
 .hero {
   text-align: center;
   padding: var(--space-3xl) var(--space-md);
-  background: linear-gradient(135deg, var(--color-primary-light), var(--color-bg-primary));
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-bg-primary)),
+              url('/assets/img/hero-bg.png') center / cover no-repeat;
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-2xl);
 }

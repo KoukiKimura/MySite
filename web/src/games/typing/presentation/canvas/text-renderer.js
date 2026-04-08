@@ -7,7 +7,7 @@ const FONT_COUNTDOWN = 'bold 120px "M PLUS Rounded 1c", sans-serif';
 const FONT_RANK = 'bold 80px "M PLUS Rounded 1c", sans-serif';
 const FONT_STATS = '16px "M PLUS Rounded 1c", sans-serif';
 
-export function createTextRenderer(ctx) {
+export function createTextRenderer(ctx, bgImage = null) {
   function drawQuestion(text, x, y) {
     ctx.font = FONT_QUESTION;
     ctx.fillStyle = '#1a1a2e';
@@ -155,8 +155,12 @@ export function createTextRenderer(ctx) {
   }
 
   function drawBackground(color = '#f0f4ff') {
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, LOGICAL_WIDTH, 600);
+    if (bgImage && bgImage.complete && bgImage.naturalWidth > 0) {
+      ctx.drawImage(bgImage, 0, 0, LOGICAL_WIDTH, 600);
+    } else {
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, LOGICAL_WIDTH, 600);
+    }
   }
 
   function drawProgressBar(progress, x, y, w, h, gameMode, currentIndex, total) {

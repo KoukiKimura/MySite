@@ -1,6 +1,6 @@
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from '../canvas/breakout-canvas.js';
 
-export function createPointerController(canvasElement) {
+export function createPointerController(canvasElement, eventTarget = canvasElement) {
   let targetX = LOGICAL_WIDTH / 2;
   let pointerY = LOGICAL_HEIGHT / 2;
 
@@ -21,8 +21,8 @@ export function createPointerController(canvasElement) {
     updatePointer(event.clientX, event.clientY);
   }
 
-  canvasElement.addEventListener('pointermove', handlePointerMove);
-  canvasElement.addEventListener('pointerdown', handlePointerDown);
+  eventTarget.addEventListener('pointermove', handlePointerMove);
+  eventTarget.addEventListener('pointerdown', handlePointerDown);
 
   return {
     getTargetX() {
@@ -32,9 +32,8 @@ export function createPointerController(canvasElement) {
       return pointerY;
     },
     destroy() {
-      canvasElement.removeEventListener('pointermove', handlePointerMove);
-      canvasElement.removeEventListener('pointerdown', handlePointerDown);
+      eventTarget.removeEventListener('pointermove', handlePointerMove);
+      eventTarget.removeEventListener('pointerdown', handlePointerDown);
     },
   };
 }
-

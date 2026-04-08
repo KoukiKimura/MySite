@@ -36,7 +36,7 @@ export function createBreakoutGame(container) {
   const stageRepository = createStaticStageRepository();
   const breakoutCanvas = createBreakoutCanvas(canvas);
   const renderer = createBreakoutRenderer(breakoutCanvas.getContext());
-  const pointerController = createPointerController(canvas);
+  const pointerController = createPointerController(canvas, container);
 
   let currentSession = null;
   let currentScreen = null;
@@ -206,4 +206,3 @@ export function createBreakoutGame(container) {
     },
   };
 }
-

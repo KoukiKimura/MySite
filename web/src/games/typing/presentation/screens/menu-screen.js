@@ -20,7 +20,7 @@ export function createMenuScreen(onStart) {
   el.className = 'typing-menu-screen';
   el.innerHTML = `
     <div class="typing-menu-inner">
-      <h2 class="typing-menu-title">🐧 タイピングペンギン</h2>
+      <h2 class="typing-menu-title"><img src="/logo.png" alt="" width="32" height="32" style="vertical-align:middle;margin-right:8px;">タイピングペンギン</h2>
 
       <div class="typing-menu-section">
         <p class="typing-menu-label">📝 出題モード</p>
@@ -47,7 +47,7 @@ export function createMenuScreen(onStart) {
         </div>
       </div>
 
-      <button class="typing-start-btn">スタート 🚀</button>
+      <button class="typing-start-btn">スタート</button>
       <p class="typing-menu-back"><a href="#/games/typing">← ゲーム説明に戻る</a></p>
     </div>
   `;

@@ -11,8 +11,8 @@
 
 .breakout-game-canvas {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+  margin: auto;
   width: 100%;
   height: 100%;
 }
@@ -24,6 +24,10 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
+}
+
+.breakout-game-overlay:empty {
+  pointer-events: none;
 }
 
 .breakout-game-controls {
@@ -172,32 +176,6 @@
   font-family: var(--font-mono);
 }
 
-.breakout-desc__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--space-md);
-  margin-top: var(--space-lg);
-}
-
-.breakout-desc__stage {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
-}
-
-.breakout-desc__stage-title {
-  font-family: var(--font-heading);
-  font-size: var(--font-size-base);
-  margin-bottom: var(--space-xs);
-}
-
-.breakout-desc__stage-text {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-normal);
-}
-
 .breakout-desc__note {
   margin-top: var(--space-lg);
   padding: var(--space-md);
@@ -218,4 +196,3 @@
     padding: var(--space-xl);
   }
 }
-

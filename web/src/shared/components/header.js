@@ -59,7 +59,7 @@ export const Header = {
     _headerEl.innerHTML = `
       <div class="header__inner">
         <a href="#/" class="header__logo">
-          <span class="header__logo-icon">🐧</span>
+          <img src="/logo.png" alt="ペンギン" class="header__logo-icon" width="32" height="32">
           <span class="header__logo-text">ペンギンげーむず！</span>
         </a>
         <nav class="header__nav">

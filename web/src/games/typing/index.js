@@ -36,7 +36,9 @@ export function createTypingGame(container) {
   // プレゼンテーション層
   const typingCanvas = createTypingCanvas(canvas);
   const ctx = typingCanvas.getContext();
-  const textRenderer = createTextRenderer(ctx);
+  const bgImage = new Image();
+  bgImage.src = '/assets/img/game-bg-typing.png';
+  const textRenderer = createTextRenderer(ctx, bgImage);
   const effectRenderer = createEffectRenderer(ctx);
   const keyboardHandler = createKeyboardHandler();
 
