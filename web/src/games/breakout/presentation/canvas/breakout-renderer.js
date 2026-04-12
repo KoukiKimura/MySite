@@ -30,8 +30,27 @@ export function createBreakoutRenderer(ctx) {
     const gradient = ctx.createLinearGradient(0, 0, 0, LOGICAL_HEIGHT);
     gradient.addColorStop(0, stage.theme.backgroundTop);
     gradient.addColorStop(1, stage.theme.backgroundBottom);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(3, 7, 14, 0.28)';
+    ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+    ctx.globalAlpha = 0.34;
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+    ctx.restore();
+
+    ctx.save();
+    roundedRect(
+      ctx,
+      playfield.left,
+      playfield.top,
+      playfield.right - playfield.left,
+      playfield.bottom - playfield.top,
+      20
+    );
+    ctx.fillStyle = 'rgba(4, 9, 18, 0.18)';
+    ctx.fill();
+    ctx.restore();
 
     ctx.save();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';

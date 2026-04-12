@@ -3,7 +3,7 @@
     "id": "breakout",
     "title": "ペンギンブロックブレイク",
     "description": "マウスでバーを操作する5ステージ制のブロック崩し。",
-    "thumbnail": "/assets/img/games/breakout-thumb.svg",
+    "thumbnail": "/assets/img/games/breakout-thumb.png",
     "path": "/games/breakout",
     "status": "available",
     "tags": ["ブロック崩し", "1人用", "PC推奨"]
