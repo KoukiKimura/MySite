@@ -1,4 +1,4 @@
-# ProjectTypingGame Web
+# GameSite Web
 
 Vite で構成されたフロントエンドです。
 ポータルサイトと各ゲームを `src` 配下のコンテキストごとに分けて実装しています。
