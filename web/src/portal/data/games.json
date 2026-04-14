@@ -2,10 +2,54 @@
   {
     "id": "typing",
     "title": "タイピングペンギン",
-    "description": "ローマ字タイピングで腕試し！日本語も英語も対応。",
-    "thumbnail": "/assets/img/games/typing-thumb.png",
+    "description": "ローマ字タイピングで腕試し。日本語も英語も対応した公開中のゲームです。",
+    "thumbnail": "",
+    "emoji": "⌨️",
+    "badgeText": "Typing",
     "path": "/games/typing",
     "status": "available",
-    "tags": ["タイピング", "1人用", "PC推奨"]
+    "badge": "人気",
+    "category": "play",
+    "tags": ["タイピング", "1人用", "PC推奨"],
+    "keywords": ["ローマ字", "キーボード", "スコア"]
+  },
+  {
+    "id": "quiz-lab",
+    "title": "ひらめきクイズラボ",
+    "description": "ことばと理科のクイズに挑戦する準備中の学びゲームです。",
+    "thumbnail": "",
+    "emoji": "🧪",
+    "badgeText": "Quiz",
+    "path": "",
+    "status": "coming-soon",
+    "category": "learn",
+    "tags": ["クイズ", "理科", "ことば"],
+    "keywords": ["ひらめき", "自由研究", "なぞとき"]
+  },
+  {
+    "id": "pixel-studio",
+    "title": "ぺたぺたピクセル",
+    "description": "ドット絵や配色あそびを楽しめる、つくる系コンテンツのモックです。",
+    "thumbnail": "",
+    "emoji": "🎨",
+    "badgeText": "Create",
+    "path": "",
+    "status": "coming-soon",
+    "category": "create",
+    "tags": ["おえかき", "ドット絵", "ものづくり"],
+    "keywords": ["ピクセル", "配色", "アート"]
+  },
+  {
+    "id": "mystery-expedition",
+    "title": "ナゾとき探検隊",
+    "description": "図鑑や地図をヒントに進む、しらべる系アドベンチャーの構想版です。",
+    "thumbnail": "",
+    "emoji": "🧭",
+    "badgeText": "Explore",
+    "path": "",
+    "status": "coming-soon",
+    "category": "explore",
+    "tags": ["探検", "図鑑", "ナゾとき"],
+    "keywords": ["地図", "観察", "ミッション"]
   }
 ]
