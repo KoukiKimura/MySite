@@ -1,12 +1,15 @@
 import { mockRankingRepository } from '../repository/mock-ranking-repository.js';
+import { getSiteMode } from '../../shared/state/site-mode.js';
 
 export default {
   create() {
     const page = document.createElement('div');
+    const mode = getSiteMode();
     page.className = 'page-ranking';
     page.innerHTML = `
       <section class="ranking">
         <h1 class="ranking__title">ランキング 🏆</h1>
+        <p class="ranking__note">現在のモード: ${mode}</p>
         <table class="ranking__table">
           <thead class="ranking__thead">
             <tr>
@@ -19,15 +22,19 @@ export default {
           </thead>
           <tbody class="ranking__tbody"></tbody>
         </table>
-        <div class="ranking__note">
-          ⚠️ ランキング機能は準備中です（ダミーデータを表示中）
-        </div>
+        <div class="ranking__empty" hidden>まだ記録がありません。</div>
       </section>
     `;
 
     const tbody = page.querySelector('.ranking__tbody');
+    const empty = page.querySelector('.ranking__empty');
 
-    mockRankingRepository.getAll().then(rankings => {
+    Promise.resolve(mockRankingRepository.getAll({ gameId: 'typing', mode })).then(rankings => {
+      if (!rankings.length) {
+        empty.hidden = false;
+        return;
+      }
+
       rankings.forEach(entry => {
         const tr = document.createElement('tr');
         tr.className = 'ranking__row';

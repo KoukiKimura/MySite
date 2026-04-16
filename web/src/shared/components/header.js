@@ -1,89 +1,134 @@
 import { onEvent } from '../events.js';
+import { Router } from '../router/router.js';
+import { UIState } from '../state/ui-state.js';
 import { getSiteMode, setSiteMode } from '../state/site-mode.js';
+import { mockAuthRepository } from '../../user/repository/mock-auth-repository.js';
+import { escapeHtml } from '../utils/escape.js';
 
-let _headerEl = null;
-let _mobileNav = null;
-let _menuBtn = null;
+let headerEl = null;
+let mobileNav = null;
+let menuButton = null;
 
-function _closeMobileMenu() {
-  if (!_menuBtn || !_mobileNav) return;
-  _menuBtn.setAttribute('aria-expanded', 'false');
-  _mobileNav.setAttribute('hidden', '');
-  document.body.style.overflow = '';
+function setMobileMenuOpen(open) {
+  if (!menuButton || !mobileNav) {
+    return;
+  }
+
+  UIState.setMobileMenuOpen(open);
+  menuButton.setAttribute('aria-expanded', String(open));
+  mobileNav.hidden = !open;
+  document.body.style.overflow = open ? 'hidden' : '';
 }
 
-function _setActiveNav(path) {
-  if (!_headerEl) return;
-  _headerEl.querySelectorAll('.header__nav-item, .header__mobile-nav-item').forEach(el => {
-    el.classList.remove('header__nav-item--active', 'header__mobile-nav-item--active');
+function closeMobileMenu() {
+  setMobileMenuOpen(false);
+}
+
+function updateTopLinks(mode) {
+  if (!headerEl) {
+    return;
+  }
+
+  const targetPath = mode === 'teens' ? '#/teens' : '#/kids';
+  headerEl.querySelectorAll('#header__top-link, #header__mobile-top-link').forEach(link => {
+    link.setAttribute('href', targetPath);
+  });
+}
+
+function setActiveNav(path) {
+  if (!headerEl) {
+    return;
+  }
+
+  headerEl.querySelectorAll('.header__nav-item, .header__mobile-nav-item').forEach(element => {
+    element.classList.remove('header__nav-item--active', 'header__mobile-nav-item--active');
   });
 
   let selector = null;
-  if (path === '/') selector = '[href="#/"]';
-  else if (path === '/ranking') selector = '[href="#/ranking"]';
-  else if (path === '/about') selector = '[href="#/about"]';
-  else if (path === '/contact') selector = '[href="#/contact"]';
-
-  if (selector) {
-    _headerEl.querySelectorAll(selector).forEach(el => {
-      if (el.classList.contains('header__nav-item')) {
-        el.classList.add('header__nav-item--active');
-      }
-      if (el.classList.contains('header__mobile-nav-item')) {
-        el.classList.add('header__mobile-nav-item--active');
-      }
-    });
+  if (path === '/' || path === '/kids' || path === '/teens' || path.startsWith('/kids/') || path.startsWith('/teens/')) {
+    selector = '#header__top-link, #header__mobile-top-link';
+  } else if (path === '/ranking') {
+    selector = '[href="#/ranking"]';
+  } else if (path === '/about') {
+    selector = '[href="#/about"]';
+  } else if (path === '/contact') {
+    selector = '[href="#/contact"]';
   }
-}
 
-function _updateAuthDisplay(user) {
-  if (!_headerEl) return;
-  const loginBtn = _headerEl.querySelector('.header__login-btn');
-  const userName = _headerEl.querySelector('.header__user-name');
-  if (user) {
-    if (loginBtn) loginBtn.style.display = 'none';
-    if (userName) {
-      userName.textContent = user.name;
-      userName.style.display = '';
+  if (!selector) {
+    return;
+  }
+
+  headerEl.querySelectorAll(selector).forEach(element => {
+    if (element.classList.contains('header__nav-item')) {
+      element.classList.add('header__nav-item--active');
     }
-  } else {
-    if (loginBtn) loginBtn.style.display = '';
-    if (userName) userName.style.display = 'none';
-  }
+
+    if (element.classList.contains('header__mobile-nav-item')) {
+      element.classList.add('header__mobile-nav-item--active');
+    }
+  });
 }
 
-function _updateModeDisplay(mode) {
-  if (!_headerEl) return;
+function updateAuthDisplay(user) {
+  if (!headerEl) {
+    return;
+  }
 
-  _headerEl.querySelectorAll('[data-site-mode]').forEach(button => {
+  const desktopAuth = headerEl.querySelector('.header__auth');
+  const mobileAuth = headerEl.querySelector('.header__mobile-auth');
+  if (!desktopAuth || !mobileAuth) {
+    return;
+  }
+
+  if (!user) {
+    desktopAuth.innerHTML = '<a href="#/login" class="header__login-btn">ログイン</a>';
+    mobileAuth.innerHTML = '<a href="#/login" class="header__mobile-nav-item">ログイン</a>';
+    return;
+  }
+
+  desktopAuth.innerHTML = `
+    <span class="header__user-name">${escapeHtml(user.name)}</span>
+    <a href="#/admin" class="header__admin-link">管理画面</a>
+  `;
+  mobileAuth.innerHTML = `
+    <a href="#/admin" class="header__mobile-nav-item">管理画面</a>
+    <a href="#/login" class="header__mobile-nav-item">ログイン設定</a>
+  `;
+}
+
+function updateModeDisplay(mode) {
+  if (!headerEl) {
+    return;
+  }
+
+  headerEl.querySelectorAll('[data-site-mode]').forEach(button => {
     const isActive = button.dataset.siteMode === mode;
     button.classList.toggle('header__site-switch-btn--active', isActive);
     button.setAttribute('aria-pressed', String(isActive));
   });
+
+  updateTopLinks(mode);
 }
 
-function _handleModeSwitch(targetMode) {
-  if (!targetMode) return;
-
-  setSiteMode(targetMode);
-  _updateModeDisplay(targetMode);
-
-  if (location.hash.slice(1) !== '/') {
-    location.hash = '#/';
+function handleModeSwitch(mode) {
+  if (!mode) {
+    return;
   }
 
-  _closeMobileMenu();
+  setSiteMode(mode, 'header-switch');
+  Router.navigate(`/${mode}`);
+  closeMobileMenu();
 }
 
 export const Header = {
   create() {
-    _headerEl = document.createElement('header');
-    _headerEl.className = 'header';
-
-    _headerEl.innerHTML = `
+    headerEl = document.createElement('header');
+    headerEl.className = 'header';
+    headerEl.innerHTML = `
       <div class="header__inner">
         <a href="#/" class="header__logo">
-          <img src="/logo.png" alt="ペンギン" class="header__logo-icon" width="32" height="32">
+          <img src="/logo.png" alt="ペンギンげーむず！" class="header__logo-icon" width="32" height="32">
           <span class="header__logo-text">ペンギンげーむず！</span>
         </a>
         <div class="header__site-switch" role="group" aria-label="サイト切替">
@@ -91,16 +136,13 @@ export const Header = {
           <button type="button" class="header__site-switch-btn" data-site-mode="teens" aria-pressed="false">ティーンズβ</button>
         </div>
         <nav class="header__nav">
-          <a href="#/" class="header__nav-item header__nav-item--active">トップ</a>
+          <a href="#/kids" class="header__nav-item header__nav-item--active" id="header__top-link">トップ</a>
           <a href="#/ranking" class="header__nav-item">ランキング</a>
           <a href="#/about" class="header__nav-item">About</a>
           <a href="#/contact" class="header__nav-item">お問い合わせ</a>
         </nav>
-        <div class="header__auth">
-          <a href="#/login" class="header__login-btn">ログイン</a>
-          <span class="header__user-name" style="display:none"></span>
-        </div>
-        <button class="header__menu-btn" aria-label="メニュー" aria-expanded="false">
+        <div class="header__auth"></div>
+        <button class="header__menu-btn" type="button" aria-label="メニュー" aria-expanded="false">
           <span class="header__menu-icon"></span>
         </button>
       </div>
@@ -112,68 +154,69 @@ export const Header = {
             <button type="button" class="header__site-switch-btn" data-site-mode="teens" aria-pressed="false">ティーンズβ</button>
           </div>
         </div>
-        <a href="#/" class="header__mobile-nav-item">トップ</a>
+        <a href="#/kids" class="header__mobile-nav-item" id="header__mobile-top-link">トップ</a>
         <a href="#/ranking" class="header__mobile-nav-item">ランキング</a>
+        <a href="#/parents" class="header__mobile-nav-item">保護者向け案内</a>
+        <a href="#/guide" class="header__mobile-nav-item">使い方</a>
         <a href="#/about" class="header__mobile-nav-item">About</a>
         <a href="#/contact" class="header__mobile-nav-item">お問い合わせ</a>
-        <a href="#/login" class="header__mobile-nav-item">ログイン</a>
+        <div class="header__mobile-auth"></div>
       </nav>
     `;
 
-    _menuBtn = _headerEl.querySelector('.header__menu-btn');
-    _mobileNav = _headerEl.querySelector('.header__mobile-nav');
+    menuButton = headerEl.querySelector('.header__menu-btn');
+    mobileNav = headerEl.querySelector('.header__mobile-nav');
 
-    _menuBtn.addEventListener('click', () => {
-      const expanded = _menuBtn.getAttribute('aria-expanded') === 'true';
-      _menuBtn.setAttribute('aria-expanded', String(!expanded));
-      if (expanded) {
-        _mobileNav.setAttribute('hidden', '');
-        document.body.style.overflow = '';
-      } else {
-        _mobileNav.removeAttribute('hidden');
-        document.body.style.overflow = 'hidden';
+    menuButton.addEventListener('click', () => {
+      setMobileMenuOpen(!UIState.getMobileMenuOpen());
+    });
+
+    headerEl.addEventListener('click', event => {
+      const siteModeButton = event.target.closest('[data-site-mode]');
+      if (siteModeButton) {
+        event.preventDefault();
+        handleModeSwitch(siteModeButton.dataset.siteMode);
       }
     });
 
-    _headerEl.addEventListener('click', (e) => {
-      const switchButton = e.target.closest('[data-site-mode]');
-      if (switchButton) {
-        e.preventDefault();
-        _handleModeSwitch(switchButton.dataset.siteMode);
+    mobileNav.addEventListener('click', event => {
+      if (event.target.classList.contains('header__mobile-nav-item')) {
+        closeMobileMenu();
       }
     });
 
-    _mobileNav.addEventListener('click', (e) => {
-      if (e.target.classList.contains('header__mobile-nav-item')) {
-        _closeMobileMenu();
-      }
+    onEvent('route-change', event => {
+      setActiveNav(event.detail.path);
     });
 
-    onEvent('route-change', (evt) => {
-      _setActiveNav(evt.detail.path);
+    onEvent('auth-change', event => {
+      updateAuthDisplay(event.detail.user);
     });
 
-    onEvent('auth-change', (evt) => {
-      _updateAuthDisplay(evt.detail.user);
+    onEvent('site-mode-change', event => {
+      updateModeDisplay(event.detail.mode);
     });
 
-    onEvent('site-mode-change', (evt) => {
-      _updateModeDisplay(evt.detail.mode);
-    });
+    updateModeDisplay(getSiteMode());
+    updateAuthDisplay(mockAuthRepository.getCurrentUser());
+    setActiveNav(Router.getCurrentPath());
+    closeMobileMenu();
 
-    _updateModeDisplay(getSiteMode());
-
-    return _headerEl;
+    return headerEl;
   },
 
   show() {
-    if (_headerEl) _headerEl.style.removeProperty('display');
+    if (headerEl) {
+      headerEl.hidden = false;
+    }
   },
 
   hide() {
-    if (_headerEl) _headerEl.style.display = 'none';
-    _closeMobileMenu();
+    if (headerEl) {
+      headerEl.hidden = true;
+    }
+    closeMobileMenu();
   },
 
-  setActiveNav: _setActiveNav,
+  setActiveNav,
 };
