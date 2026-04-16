@@ -1,21 +1,30 @@
+import { createInfoPage } from './info-page-factory.js';
+
 export default {
   create() {
-    const page = document.createElement('div');
-    page.className = 'page-about';
-    page.innerHTML = `
-      <section class="about">
-        <h1 class="about__title">About</h1>
-        <p class="about__text">
-          「ペンギンげーむず！」は、ブラウザで遊べるHTML5ミニゲーム集です。
-          インストール不要で、今すぐ楽しめます。
-        </p>
-        <h2 class="about__subtitle">技術について</h2>
-        <p class="about__text">
-          このサイトは HTML5 / CSS3 / JavaScript (ES6+) で構築されています。
-          プログラミング教育の教材としても活用できます。
-        </p>
-      </section>
-    `;
-    return page;
+    return createInfoPage({
+      slug: 'about',
+      title: 'About',
+      lead: 'ペンギンげーむず！は、キッズ向けポータルとティーンズβを切り替えられるゲームサイトです。',
+      sections: [
+        {
+          heading: 'このサイトについて',
+          body: [
+            'ブラウザで遊べるゲームだけでなく、学びや安全案内への導線をまとめるポータルとして設計しています。',
+            'ペンギンの案内役を前面に出し、子どもでも迷いにくい構成を目指しています。',
+          ],
+        },
+        {
+          heading: 'ティーンズβについて',
+          body: [
+            '同じブランド内の別モードとして、ニュースや進路など情報ポータル寄りの導線を先行検証しています。',
+          ],
+        },
+      ],
+      links: [
+        { label: '使い方', path: '/guide' },
+        { label: 'お問い合わせ', path: '/contact' },
+      ],
+    });
   },
 };

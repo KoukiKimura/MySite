@@ -1,8 +1,16 @@
 import { GameCard } from '../../shared/components/game-card.js';
+import { FeatureCard } from '../../shared/components/feature-card.js';
+import { CategoryRail } from '../../shared/components/category-rail.js';
 import { onEvent } from '../../shared/events.js';
-import { getSiteMode, setSiteMode, SiteMode } from '../../shared/state/site-mode.js';
+import { Router } from '../../shared/router/router.js';
+import { getSiteMode, setPortalContext, setSiteMode, SiteMode } from '../../shared/state/site-mode.js';
+import { UIState } from '../../shared/state/ui-state.js';
+import { buildFeaturedOrder } from '../application/recommendation-service.js';
 import { countMatches, filterCollection } from '../application/home-filters.js';
-import { HOME_MODES } from '../data/home-content.js';
+import { HOME_CONTENT, HOME_MODES } from '../data/home-content.js';
+import { mockHistoryRepository } from '../../user/repository/mock-history-repository.js';
+import { mockProfileRepository } from '../../user/repository/mock-profile-repository.js';
+import { mockRecordRepository } from '../../user/repository/mock-record-repository.js';
 import gameData from '../data/games.json';
 
 let _page = null;
@@ -325,7 +333,7 @@ function handleSubmit(event) {
   renderDynamicSections();
 }
 
-export default {
+const LegacyHomePage = {
   create() {
     resetState();
 
@@ -390,3 +398,276 @@ function escapeAttr(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }
+
+function getHomeSearchScope(mode) {
+  return `home:${mode}`;
+}
+
+function getModernHomeContent(mode) {
+  return HOME_CONTENT[mode] ?? HOME_CONTENT[SiteMode.KIDS];
+}
+
+function getVisibleHomeGames() {
+  return gameData.map(game => ({ ...game, category: 'games' }));
+}
+
+function renderHomeSidePanels(items = []) {
+  return items.map(item => `
+    <a href="#${escapeAttr(item.path)}" class="portal-side-panel portal-side-panel--link">
+      <h3 class="portal-side-panel__title">${escapeHtml(item.title)}</h3>
+      <p class="portal-side-panel__body">${escapeHtml(item.description)}</p>
+      <span class="portal-side-panel__action">${escapeHtml(item.actionLabel)}</span>
+    </a>
+  `).join('');
+}
+
+function renderHomeHeroHighlights(items = []) {
+  return items.map(item => `
+    <article class="portal-highlight">
+      <h3 class="portal-highlight__title">${escapeHtml(item.title)}</h3>
+      <p class="portal-highlight__text">${escapeHtml(item.text)}</p>
+    </article>
+  `).join('');
+}
+
+function createModernHomePage() {
+  let page = null;
+  let state = null;
+
+  function saveSearchHistory(trigger) {
+    const query = state.query.trim();
+    if (!query) {
+      return;
+    }
+
+    mockHistoryRepository.save({
+      mode: state.mode,
+      route: `/${state.mode}`,
+      category: null,
+      query,
+      trigger,
+    });
+  }
+
+  function renderDynamicSections() {
+    const content = getModernHomeContent(state.mode);
+    const featureGrid = page.querySelector('#portal-feature-grid');
+    const gamesGrid = page.querySelector('#portal-games-grid');
+    const keywordArea = page.querySelector('#portal-keywords');
+
+    keywordArea.innerHTML = content.keywords.map(keyword => `
+      <button type="button" class="portal-chip" data-home-keyword="${escapeAttr(keyword)}">${escapeHtml(keyword)}</button>
+    `).join('');
+
+    const filteredFeatures = filterCollection(state.featuredOrder, { query: state.query });
+    const filteredGames = filterCollection(getVisibleHomeGames(), { query: state.query });
+
+    featureGrid.innerHTML = '';
+    gamesGrid.innerHTML = '';
+
+    if (!filteredFeatures.length) {
+      featureGrid.innerHTML = `
+        <div class="portal-empty">
+          <h3 class="portal-empty__title">見つかりませんでした</h3>
+          <p class="portal-empty__text">キーワードを変えるか、カテゴリから探してみてください。</p>
+        </div>
+      `;
+    } else {
+      filteredFeatures.forEach(item => featureGrid.appendChild(FeatureCard.create(item)));
+    }
+
+    if (!filteredGames.length) {
+      gamesGrid.innerHTML = `
+        <div class="portal-empty">
+          <h3 class="portal-empty__title">対象のゲームがありません</h3>
+          <p class="portal-empty__text">別の言葉で検索してみてください。</p>
+        </div>
+      `;
+    } else {
+      filteredGames.forEach(game => gamesGrid.appendChild(GameCard.create(game)));
+    }
+  }
+
+  function renderPage() {
+    const content = getModernHomeContent(state.mode);
+    page.className = `page-home page-home--${escapeAttr(content.theme)}`;
+    page.innerHTML = `
+      <section class="portal-hero portal-hero--${escapeAttr(content.theme)}">
+        <div class="portal-hero__content">
+          <p class="portal-hero__eyebrow">${escapeHtml(content.hero.eyebrow)}</p>
+          <h1 class="portal-hero__title">${escapeHtml(content.hero.title)}</h1>
+          <p class="portal-hero__subtitle">${escapeHtml(content.hero.description)}</p>
+
+          <form class="portal-search" id="portal-search-form">
+            <label class="sr-only" for="portal-search-input">${escapeHtml(content.searchLabel)}</label>
+            <div class="portal-search__field">
+              <input
+                id="portal-search-input"
+                class="portal-search__input"
+                type="search"
+                value="${escapeAttr(state.query)}"
+                placeholder="${escapeAttr(content.searchPlaceholder)}"
+                autocomplete="off"
+              >
+              <button type="submit" class="portal-search__button">さがす</button>
+            </div>
+            <p class="portal-search__hint">${escapeHtml(content.searchHint)}</p>
+          </form>
+
+          <div class="portal-keywords" id="portal-keywords"></div>
+
+          <div class="portal-hero__actions">
+            <a href="#${escapeAttr(content.hero.primaryPath)}" class="portal-action portal-action--primary">${escapeHtml(content.hero.primaryLabel)}</a>
+            <button type="button" class="portal-action portal-action--secondary" data-home-mode="${escapeAttr(content.hero.secondaryMode)}">
+              ${escapeHtml(content.hero.secondaryLabel)}
+            </button>
+          </div>
+        </div>
+
+        <div class="portal-hero__visual">
+          <div class="portal-hero__mascot">
+            <span class="portal-hero__mascot-icon" aria-hidden="true">${escapeHtml(content.hero.visualIcon)}</span>
+            <p class="portal-hero__mascot-label">${escapeHtml(content.hero.visualLabel)}</p>
+          </div>
+          <div class="portal-hero__highlights">
+            ${renderHomeHeroHighlights(content.heroHighlights)}
+          </div>
+        </div>
+      </section>
+
+      <div class="portal-layout">
+        <section class="portal-main">
+          <section class="portal-section">
+            <div class="portal-section__header">
+              <div>
+                <p class="portal-section__eyebrow">category</p>
+                <h2 class="portal-section__title">カテゴリから入る</h2>
+              </div>
+            </div>
+            <div id="portal-category-rail"></div>
+          </section>
+
+          <section class="portal-section">
+            <div class="portal-section__header">
+              <div>
+                <p class="portal-section__eyebrow">featured</p>
+                <h2 class="portal-section__title">${escapeHtml(content.featuredTitle)}</h2>
+              </div>
+              <p class="portal-section__text">${escapeHtml(content.featuredDescription)}</p>
+            </div>
+            <div class="portal-feature-grid" id="portal-feature-grid"></div>
+          </section>
+
+          <section class="portal-section">
+            <div class="portal-section__header">
+              <div>
+                <p class="portal-section__eyebrow">games</p>
+                <h2 class="portal-section__title">${escapeHtml(content.gamesTitle)}</h2>
+              </div>
+              <p class="portal-section__text">${escapeHtml(content.gamesDescription)}</p>
+            </div>
+            <div class="game-list__grid portal-games-grid" id="portal-games-grid"></div>
+          </section>
+        </section>
+
+        <aside class="portal-sidebar" id="portal-sidebar">
+          ${renderHomeSidePanels(content.sidePanels)}
+        </aside>
+      </div>
+    `;
+
+    page
+      .querySelector('#portal-category-rail')
+      .appendChild(CategoryRail.create({ categories: content.categories, mode: state.mode }));
+
+    renderDynamicSections();
+  }
+
+  function handleClick(event) {
+    const keywordButton = event.target.closest('[data-home-keyword]');
+    if (keywordButton) {
+      state.query = keywordButton.dataset.homeKeyword ?? '';
+      UIState.setSearchQuery(getHomeSearchScope(state.mode), state.query);
+      const input = page.querySelector('#portal-search-input');
+      if (input) {
+        input.value = state.query;
+      }
+      saveSearchHistory('keyword');
+      renderDynamicSections();
+      return;
+    }
+
+    const modeButton = event.target.closest('[data-home-mode]');
+    if (modeButton?.dataset.homeMode) {
+      const nextMode = modeButton.dataset.homeMode;
+      setSiteMode(nextMode, 'home-switch');
+      Router.navigate(`/${nextMode}`);
+    }
+  }
+
+  function handleInput(event) {
+    const input = event.target.closest('#portal-search-input');
+    if (!input) {
+      return;
+    }
+
+    state.query = input.value.trim();
+    UIState.setSearchQuery(getHomeSearchScope(state.mode), state.query);
+    renderDynamicSections();
+  }
+
+  function handleSubmit(event) {
+    if (!event.target.closest('#portal-search-form')) {
+      return;
+    }
+
+    event.preventDefault();
+    state.query = page.querySelector('#portal-search-input')?.value.trim() ?? '';
+    UIState.setSearchQuery(getHomeSearchScope(state.mode), state.query);
+    saveSearchHistory('submit');
+    renderDynamicSections();
+  }
+
+  return {
+    create({ path, params }) {
+      const mode = params?.mode ?? getSiteMode();
+      setSiteMode(mode, 'route');
+      setPortalContext({ lastPortalRoute: path, mode, category: null });
+
+      state = {
+        mode,
+        query: UIState.getSearchQuery(getHomeSearchScope(mode)),
+        featuredOrder: buildFeaturedOrder({
+          history: mockHistoryRepository.list({ mode }),
+          records: mockRecordRepository.list({ mode }),
+          profile: mockProfileRepository.get(mode),
+          mode,
+          defaults: getModernHomeContent(mode).featureItems,
+        }),
+      };
+
+      page = document.createElement('div');
+      page.addEventListener('click', handleClick);
+      page.addEventListener('input', handleInput);
+      page.addEventListener('submit', handleSubmit);
+
+      renderPage();
+      return page;
+    },
+
+    destroy() {
+      if (page) {
+        page.removeEventListener('click', handleClick);
+        page.removeEventListener('input', handleInput);
+        page.removeEventListener('submit', handleSubmit);
+      }
+
+      page = null;
+      state = null;
+    },
+  };
+}
+
+const HomePage = createModernHomePage();
+
+export default HomePage;

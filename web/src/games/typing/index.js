@@ -16,7 +16,7 @@ import { createPlayScreen } from './presentation/screens/play-screen.js';
 import { createPauseScreen } from './presentation/screens/pause-screen.js';
 import { createResultScreen } from './presentation/screens/result-screen.js';
 
-export function createTypingGame(container) {
+export function createTypingGame(container, options = {}) {
   // canvas 要素を生成してコンテナに追加
   const canvas = document.createElement('canvas');
   canvas.className = 'typing-game-canvas';
@@ -174,6 +174,7 @@ export function createTypingGame(container) {
     clearScreen();
     canvas.style.display = 'none';
     clearOverlay();
+    options.onFinishResult?.(result, currentSession);
 
     const resultScreen = createResultScreen(result, {
       onRetry() {
