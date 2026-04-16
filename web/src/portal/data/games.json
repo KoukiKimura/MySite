@@ -1,5 +1,14 @@
 [
   {
+    "id": "breakout",
+    "title": "ペンギンブロックブレイク",
+    "description": "マウスでバーを操作する5ステージ制のブロック崩し。",
+    "thumbnail": "/assets/img/games/breakout-thumb.png",
+    "path": "/games/breakout",
+    "status": "available",
+    "tags": ["ブロック崩し", "1人用", "PC推奨"]
+  },
+  {
     "id": "typing",
     "title": "タイピングペンギン",
     "description": "ローマ字タイピングで腕試し。日本語も英語も対応した公開中のゲームです。",

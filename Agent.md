@@ -1,4 +1,4 @@
-# ProjectTypingGame — プロジェクト構成ガイド
+# GameSite — プロジェクト構成ガイド
 
 ## プロジェクト概要
 

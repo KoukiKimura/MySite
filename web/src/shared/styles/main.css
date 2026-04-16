@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&family=Source+Code+Pro:wght@400;600&display=swap');
 @import './variables.css';
+@import '../../games/breakout/presentation/breakout-game.css';
 @import '../../games/typing/presentation/typing-game.css';
 
 /* リセット */
@@ -123,7 +124,10 @@ button {
 }
 
 .header__logo-icon {
-  font-size: var(--font-size-2xl);
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  display: inline-block;
 }
 
 .header__site-switch {
