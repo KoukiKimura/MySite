@@ -1,4 +1,5 @@
 import { onEvent } from '../events.js';
+import { getSiteMode, setSiteMode } from '../state/site-mode.js';
 
 let _headerEl = null;
 let _mobileNav = null;
@@ -51,6 +52,29 @@ function _updateAuthDisplay(user) {
   }
 }
 
+function _updateModeDisplay(mode) {
+  if (!_headerEl) return;
+
+  _headerEl.querySelectorAll('[data-site-mode]').forEach(button => {
+    const isActive = button.dataset.siteMode === mode;
+    button.classList.toggle('header__site-switch-btn--active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+}
+
+function _handleModeSwitch(targetMode) {
+  if (!targetMode) return;
+
+  setSiteMode(targetMode);
+  _updateModeDisplay(targetMode);
+
+  if (location.hash.slice(1) !== '/') {
+    location.hash = '#/';
+  }
+
+  _closeMobileMenu();
+}
+
 export const Header = {
   create() {
     _headerEl = document.createElement('header');
@@ -62,6 +86,10 @@ export const Header = {
           <img src="/logo.png" alt="ペンギン" class="header__logo-icon" width="32" height="32">
           <span class="header__logo-text">ペンギンげーむず！</span>
         </a>
+        <div class="header__site-switch" role="group" aria-label="サイト切替">
+          <button type="button" class="header__site-switch-btn" data-site-mode="kids" aria-pressed="true">キッズ</button>
+          <button type="button" class="header__site-switch-btn" data-site-mode="teens" aria-pressed="false">ティーンズβ</button>
+        </div>
         <nav class="header__nav">
           <a href="#/" class="header__nav-item header__nav-item--active">トップ</a>
           <a href="#/ranking" class="header__nav-item">ランキング</a>
@@ -77,6 +105,13 @@ export const Header = {
         </button>
       </div>
       <nav class="header__mobile-nav" hidden>
+        <div class="header__mobile-tools">
+          <p class="header__mobile-tools-label">サイト切替</p>
+          <div class="header__site-switch header__site-switch--mobile" role="group" aria-label="サイト切替">
+            <button type="button" class="header__site-switch-btn" data-site-mode="kids" aria-pressed="true">キッズ</button>
+            <button type="button" class="header__site-switch-btn" data-site-mode="teens" aria-pressed="false">ティーンズβ</button>
+          </div>
+        </div>
         <a href="#/" class="header__mobile-nav-item">トップ</a>
         <a href="#/ranking" class="header__mobile-nav-item">ランキング</a>
         <a href="#/about" class="header__mobile-nav-item">About</a>
@@ -100,14 +135,20 @@ export const Header = {
       }
     });
 
-    // モバイルナビ項目クリックでメニュークローズ
+    _headerEl.addEventListener('click', (e) => {
+      const switchButton = e.target.closest('[data-site-mode]');
+      if (switchButton) {
+        e.preventDefault();
+        _handleModeSwitch(switchButton.dataset.siteMode);
+      }
+    });
+
     _mobileNav.addEventListener('click', (e) => {
       if (e.target.classList.contains('header__mobile-nav-item')) {
         _closeMobileMenu();
       }
     });
 
-    // イベント購読
     onEvent('route-change', (evt) => {
       _setActiveNav(evt.detail.path);
     });
@@ -115,6 +156,12 @@ export const Header = {
     onEvent('auth-change', (evt) => {
       _updateAuthDisplay(evt.detail.user);
     });
+
+    onEvent('site-mode-change', (evt) => {
+      _updateModeDisplay(evt.detail.mode);
+    });
+
+    _updateModeDisplay(getSiteMode());
 
     return _headerEl;
   },

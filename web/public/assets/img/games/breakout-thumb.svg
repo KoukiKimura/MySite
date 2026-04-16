@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="30" y1="20" x2="290" y2="160" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#102A43"/>
+      <stop offset="1" stop-color="#08111C"/>
+    </linearGradient>
+    <linearGradient id="paddle" x1="120" y1="138" x2="200" y2="148" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF4B2"/>
+      <stop offset="1" stop-color="#FFB26B"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="180" rx="20" fill="url(#bg)"/>
+  <g opacity="0.32" stroke="#A9D5FF" stroke-width="1">
+    <path d="M24 48H296"/>
+    <path d="M24 78H296"/>
+    <path d="M24 108H296"/>
+    <path d="M24 138H296"/>
+    <path d="M60 20V160"/>
+    <path d="M120 20V160"/>
+    <path d="M180 20V160"/>
+    <path d="M240 20V160"/>
+  </g>
+  <g>
+    <rect x="44" y="34" width="34" height="14" rx="7" fill="#6ED0FF"/>
+    <rect x="84" y="34" width="34" height="14" rx="7" fill="#9AF3D8"/>
+    <rect x="124" y="34" width="34" height="14" rx="7" fill="#FFE48A"/>
+    <rect x="164" y="34" width="34" height="14" rx="7" fill="#6ED0FF"/>
+    <rect x="204" y="34" width="34" height="14" rx="7" fill="#9AF3D8"/>
+    <rect x="244" y="34" width="34" height="14" rx="7" fill="#FFE48A"/>
+    <rect x="64" y="56" width="34" height="14" rx="7" fill="#9AF3D8"/>
+    <rect x="104" y="56" width="34" height="14" rx="7" fill="#FFE48A"/>
+    <rect x="144" y="56" width="34" height="14" rx="7" fill="#6ED0FF"/>
+    <rect x="184" y="56" width="34" height="14" rx="7" fill="#9AF3D8"/>
+    <rect x="224" y="56" width="34" height="14" rx="7" fill="#FFE48A"/>
+  </g>
+  <circle cx="112" cy="118" r="10" fill="#FFF7E6"/>
+  <circle cx="112" cy="118" r="16" fill="#FFF7E6" opacity="0.18"/>
+  <rect x="118" y="136" width="84" height="12" rx="6" fill="url(#paddle)"/>
+  <text x="26" y="154" fill="#F8FBFF" font-family="'M PLUS Rounded 1c', sans-serif" font-size="18" font-weight="700">BREAKOUT</text>
+  <text x="26" y="170" fill="#A8C6E8" font-family="'Noto Sans JP', sans-serif" font-size="10" font-weight="500">STAGE 1-1 TO 1-5</text>
+</svg>

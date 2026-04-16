@@ -2,13 +2,15 @@ import { emitEvent } from '../events.js';
 import { Loading } from '../components/loading.js';
 
 const ROUTES = {
-  '/':                  () => import('../../portal/pages/home.js'),
-  '/games/typing':      () => import('../../games/typing/pages/description.js'),
-  '/games/typing/play': () => import('../../games/typing/pages/play.js'),
-  '/ranking':           () => import('../../user/pages/ranking.js'),
-  '/login':             () => import('../../user/pages/login.js'),
-  '/about':             () => import('../../portal/pages/about.js'),
-  '/contact':           () => import('../../portal/pages/contact.js'),
+  '/':                    () => import('../../portal/pages/home.js'),
+  '/games/breakout':      () => import('../../games/breakout/pages/description.js'),
+  '/games/breakout/play': () => import('../../games/breakout/pages/play.js'),
+  '/games/typing':        () => import('../../games/typing/pages/description.js'),
+  '/games/typing/play':   () => import('../../games/typing/pages/play.js'),
+  '/ranking':             () => import('../../user/pages/ranking.js'),
+  '/login':               () => import('../../user/pages/login.js'),
+  '/about':               () => import('../../portal/pages/about.js'),
+  '/contact':             () => import('../../portal/pages/contact.js'),
 };
 
 const FALLBACK = () => import('../../portal/pages/not-found.js');

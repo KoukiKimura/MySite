@@ -1,20 +1,25 @@
 :root {
   /* ==== カラーパレット ==== */
-  --color-primary:       #2196F3;
-  --color-primary-dark:  #1976D2;
-  --color-primary-light: #BBDEFB;
-  --color-secondary:     #FFD54F;
-  --color-secondary-dark:#FFC107;
-  --color-success:       #4CAF50;
-  --color-error:         #F44336;
-  --color-warning:       #FF9800;
-  --color-text-primary:  #212121;
-  --color-text-secondary:#757575;
-  --color-text-inverse:  #FFFFFF;
-  --color-bg-primary:    #FFFFFF;
-  --color-bg-secondary:  #F5F5F5;
-  --color-bg-dark:       #263238;
-  --color-border:        #E0E0E0;
+  --color-primary:        #1683ff;
+  --color-primary-dark:   #0f59c6;
+  --color-primary-light:  #d9eeff;
+  --color-secondary:      #ffd764;
+  --color-secondary-dark: #f2b705;
+  --color-success:        #3fb97e;
+  --color-error:          #f25f5c;
+  --color-warning:        #ff9f43;
+  --color-accent-mint:    #76dec4;
+  --color-accent-coral:   #ff8f6b;
+  --color-accent-navy:    #163c6b;
+  --color-text-primary:   #19304d;
+  --color-text-secondary: #5d7088;
+  --color-text-inverse:   #ffffff;
+  --color-bg-primary:     #f6fbff;
+  --color-bg-secondary:   #eaf4ff;
+  --color-bg-dark:        #163c6b;
+  --color-surface:        #ffffff;
+  --color-surface-soft:   #f9fcff;
+  --color-border:         #d6e7f5;
 
   /* ==== タイポグラフィ ==== */
   --font-heading: 'M PLUS Rounded 1c', sans-serif;
@@ -43,18 +48,20 @@
   --space-3xl: 4rem;
 
   /* ==== レイアウト ==== */
-  --max-width: 1200px;
-  --header-height: 60px;
+  --max-width: 1240px;
+  --header-height: 72px;
 
   /* ==== 影 ==== */
-  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.12);
-  --shadow-md:  0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg:  0 10px 25px rgba(0, 0, 0, 0.15);
+  --shadow-sm:   0 8px 20px rgba(22, 60, 107, 0.08);
+  --shadow-md:   0 16px 30px rgba(22, 60, 107, 0.12);
+  --shadow-lg:   0 28px 60px rgba(22, 60, 107, 0.16);
+  --shadow-soft: 0 10px 30px rgba(22, 131, 255, 0.12);
 
   /* ==== 角丸 ==== */
   --radius-sm:   4px;
   --radius-md:   8px;
   --radius-lg:   16px;
+  --radius-xl:   28px;
   --radius-full: 9999px;
 
   /* ==== トランジション ==== */
